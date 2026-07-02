@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>智慧水利监测管理平台</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --hbg:#0c1526;--blue:#1677ff;--hh:50px;--nw:60px;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:#eef2f8;-webkit-font-smoothing:antialiased;}
+
+/* ── HEADER ── */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--hbg);z-index:300;display:flex;align-items:center;padding:0 18px;gap:10px;box-shadow:0 1px 0 rgba(255,255,255,.05);}
+.hmark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#1677ff,#0ea5e9);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.htitle{font-size:15px;font-weight:600;color:#fff;letter-spacing:.02em;margin-left:6px;white-space:nowrap;}
+.hdiv{width:1px;height:18px;background:rgba(255,255,255,.1);}
+.hcrumb{font-size:13px;color:rgba(255,255,255,.55);font-weight:500;}
+.hpill{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#4ade80;}
+.hd{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 1.6s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.hright{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.hclk{font-size:12px;color:rgba(255,255,255,.42);font-feature-settings:'tnum';}
+.hver{font-size:11px;color:rgba(255,255,255,.25);background:rgba(255,255,255,.07);padding:2px 7px;border-radius:4px;}
+.husr{display:flex;align-items:center;gap:6px;color:#fff;font-size:13px;cursor:pointer;}
+.hava{width:26px;height:26px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+
+/* ── NAV ── */
+.nav{position:fixed;top:var(--hh);left:0;bottom:0;width:var(--nw);background:var(--hbg);border-right:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:2px;z-index:200;}
+.ni{width:44px;height:44px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:rgba(255,255,255,.28);transition:.15s;position:relative;}
+.ni:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.55);}
+.ni.on{background:rgba(22,119,255,.18);color:#60a5fa;}
+.ni svg{width:18px;height:18px;}
+.nl{font-size:10px;}
+.nbadge{position:absolute;top:5px;right:4px;width:15px;height:15px;border-radius:8px;background:#ef4444;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;}
+
+/* ── FRAMES ── */
+.frame{position:fixed;top:var(--hh);left:var(--nw);right:0;bottom:0;width:calc(100% - var(--nw));height:calc(100% - var(--hh));border:0;display:none;background:#eef2f8;}
+.frame.on{display:block;}
+@media (min-width:1600px){.htitle{font-size:16px;}.hclk{font-size:13px;}.ni{width:46px;height:46px;}.nl{font-size:11px;}}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hmark"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8 7 4 10.5 4 14a8 8 0 0016 0c0-3.5-4-7-8-12z"/></svg></div>
+  <span class="htitle">智慧水利监测管理平台</span>
+  <div class="hdiv"></div>
+  <span class="hcrumb" id="crumb">数据采集</span>
+  <div class="hpill"><div class="hd"></div>系统运行正常</div>
+  <div class="hright">
+    <span class="hclk" id="clock">2026-07-02 09:00:00</span>
+    <span class="hver">v2.4.1</span>
+    <div class="husr"><div class="hava">管</div>管理员<svg width="11" height="11" viewBox="0 0 24 24" fill="rgba(255,255,255,.38)"><path d="M7 10l5 5 5-5z"/></svg></div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="ni on" data-p="acq" title="数据采集"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg><span class="nl">采集</span></div>
+  <div class="ni" data-p="ctrl" title="远程控制"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.09 12.5H11L10 22L20.91 11.5H14L13 2Z"/></svg><span class="nl">控制</span></div>
+  <div class="ni" data-p="sys" title="系统管理"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nl">系统</span></div>
+</nav>
+
+<!-- FRAMES -->
+<iframe class="frame on" id="f-acq"  data-p="acq"  src="page-acq.html"></iframe>
+<iframe class="frame"    id="f-ctrl" data-p="ctrl" src="page-ctrl.html"></iframe>
+<iframe class="frame"    id="f-sys"  data-p="sys"  src="page-sys.html"></iframe>
+
+<script>
+/* 时钟 */
+function pad(n){return String(n).padStart(2,'0');}
+function tick(){const d=new Date();document.getElementById('clock').textContent=
+ d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());}
+tick();setInterval(tick,1000);
+
+/* 页面切换 */
+const NAMES={acq:'数据采集',ctrl:'远程控制',sys:'系统管理'};
+document.querySelectorAll('.nav .ni').forEach(ni=>ni.onclick=()=>{
+  const p=ni.dataset.p;
+  document.querySelectorAll('.nav .ni').forEach(x=>x.classList.toggle('on',x.dataset.p===p));
+  document.querySelectorAll('.frame').forEach(f=>f.classList.toggle('on',f.dataset.p===p));
+  document.getElementById('crumb').textContent=NAMES[p];
+  document.title='智慧水利监测管理平台 · '+NAMES[p];
+});
+</script>
+</body>
+</html>

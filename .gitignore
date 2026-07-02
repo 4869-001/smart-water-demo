@@ -1,0 +1,12 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*~
+
+# 调试与截图产物
+.playwright-mcp/
+*.png
+*.jpeg
+
+# 本地服务临时文件
+__pycache__/

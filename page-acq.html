@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>智慧水利监测管理平台 · 数据采集</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#eef2f8;
+  --card:#fff;
+  --hbg:#0c1526;
+  --bd:#dde5f0;
+  --bd2:#edf1f8;
+  --blue:#1677ff;--blueh:#0958d9;--bluebg:#eff6ff;
+  --green:#15803d;--greenbg:#f0fdf4;--gdot:#22c55e;
+  --red:#dc2626;--redbg:#fff5f5;
+  --amber:#b45309;--amberbg:#fffbeb;--adot:#f59e0b;
+  --gray:#64748b;--graybg:#f8fafc;
+  --th:#0f172a;--tp:#334155;--ts:#64748b;--tm:#94a3b8;
+  --nw:60px;--hh:50px;--r:8px;--rl:10px;
+  --shadow:0 1px 4px rgba(0,20,80,.07);
+  --shadow-md:0 3px 16px rgba(0,20,80,.1);
+  --shadow-lg:0 8px 32px rgba(0,20,80,.14);
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--tp);font-size:13px;-webkit-font-smoothing:antialiased;}
+
+/* ────── HEADER ────── */
+.hdr{position:fixed;top:0;left:0;right:0;height:var(--hh);background:var(--hbg);z-index:300;display:flex;align-items:center;padding:0 18px;gap:10px;box-shadow:0 1px 0 rgba(255,255,255,.05);}
+.hmark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#1677ff,#0ea5e9);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.htitle{font-size:15px;font-weight:600;color:#fff;letter-spacing:.02em;margin-left:6px;white-space:nowrap;}
+.hdiv{width:1px;height:18px;background:rgba(255,255,255,.1);}
+.hpill{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;}
+.hp-on{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#4ade80;}
+.hp-off{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.35);}
+.hd{width:6px;height:6px;border-radius:50%;}
+.hp-on .hd{background:#22c55e;animation:pulse 1.6s infinite;}
+.hp-off .hd{background:rgba(255,255,255,.22);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.hright{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.hlat{display:flex;align-items:center;gap:5px;font-size:12px;color:#fcd34d;}
+.hlatd{width:5px;height:5px;border-radius:50%;background:#fcd34d;}
+.hclk{font-size:12px;color:rgba(255,255,255,.42);font-feature-settings:'tnum';}
+.hver{font-size:11px;color:rgba(255,255,255,.25);background:rgba(255,255,255,.07);padding:2px 7px;border-radius:4px;}
+.husr{display:flex;align-items:center;gap:6px;color:#fff;font-size:13px;cursor:pointer;}
+.hava{width:26px;height:26px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+
+/* ────── NAV ────── */
+.nav{position:fixed;top:var(--hh);left:0;bottom:0;width:var(--nw);background:var(--hbg);border-right:1px solid rgba(255,255,255,.05);display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:2px;z-index:200;}
+.ni{width:44px;height:44px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:rgba(255,255,255,.28);transition:.15s;position:relative;}
+.ni:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.55);}
+.ni.on{background:rgba(22,119,255,.18);color:#60a5fa;}
+.ni svg{width:18px;height:18px;}
+.nl{font-size:10px;}
+.nbadge{position:absolute;top:5px;right:4px;width:15px;height:15px;border-radius:8px;background:#ef4444;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;}
+
+/* ────── MAIN ────── */
+.main{position:fixed;top:var(--hh);left:var(--nw);right:0;bottom:0;overflow-y:auto;padding:20px 22px 24px;background:var(--bg);display:flex;flex-direction:column;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:4px;}
+
+.pgtitle{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:700;color:var(--th);margin-bottom:18px;}
+.pgacc{width:3px;height:18px;border-radius:2px;background:var(--blue);}
+
+/* ────── STATS ────── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.sc{background:var(--card);border:1px solid var(--bd);border-radius:var(--rl);padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);}
+.sico{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sico svg{width:19px;height:19px;}
+.si-b{background:#eff6ff;}.si-g{background:#f0fdf4;}.si-a{background:#fffbeb;}.si-r{background:#fff5f5;}
+.scnt{font-size:24px;font-weight:700;line-height:1;font-feature-settings:'tnum';}
+.cb{color:var(--blue);}.cg{color:var(--green);}.ca{color:var(--amber);}.cr{color:var(--red);}
+.su{font-size:12px;font-weight:400;margin-left:2px;color:var(--ts);}
+.slb{font-size:12px;color:var(--ts);margin-top:2px;}
+
+/* ────── LAYOUT ────── */
+.acqgrid{flex:1;display:grid;grid-template-columns:236px 1fr;gap:14px;min-height:0;align-items:start;}
+
+/* Device list */
+.devcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--rl);box-shadow:var(--shadow);display:flex;flex-direction:column;overflow:hidden;position:sticky;top:0;}
+.devhd{padding:11px 14px;border-bottom:1px solid var(--bd);font-size:13px;font-weight:600;color:var(--th);display:flex;align-items:center;justify-content:space-between;}
+.devcount{font-size:11px;color:var(--tm);font-weight:400;}
+.devsearch{padding:10px 12px;border-bottom:1px solid var(--bd2);}
+.devsearch input{width:100%;padding:6px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);font-size:12px;color:var(--th);outline:none;font-family:inherit;transition:border-color .15s;}
+.devsearch input:focus{border-color:var(--blue);}
+.devlist{display:flex;flex-direction:column;padding:6px;gap:3px;max-height:520px;overflow-y:auto;}
+.devlist::-webkit-scrollbar{width:3px;}
+.devlist::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:3px;}
+.devi{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;cursor:pointer;transition:.13s;border:1px solid transparent;}
+.devi:hover{background:var(--graybg);}
+.devi.on{background:var(--bluebg);border-color:rgba(22,119,255,.22);}
+.devdot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dd-on{background:var(--gdot);animation:pulse 1.6s infinite;}
+.dd-off{background:#cbd5e1;}
+.devnm{font-size:12px;font-weight:600;color:var(--th);line-height:1.2;}
+.devi.on .devnm{color:var(--blue);}
+.devid{font-size:10px;color:var(--tm);margin-top:2px;font-feature-settings:'tnum';}
+.devtag{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:8px;flex-shrink:0;}
+.dt-on{background:var(--greenbg);color:var(--green);}
+.dt-off{background:var(--graybg);color:var(--tm);}
+
+/* Right column */
+.rcol{display:flex;flex-direction:column;gap:14px;min-width:0;}
+
+/* Device info bar */
+.infobar{background:var(--card);border:1px solid var(--bd);border-radius:var(--rl);box-shadow:var(--shadow);padding:13px 16px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.ibmain{display:flex;align-items:center;gap:10px;}
+.ibicon{width:36px;height:36px;border-radius:9px;background:var(--bluebg);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ibicon svg{width:18px;height:18px;}
+.ibname{font-size:14px;font-weight:700;color:var(--th);}
+.ibsub{font-size:11px;color:var(--tm);margin-top:2px;font-feature-settings:'tnum';}
+.ibdiv{width:1px;height:26px;background:var(--bd);}
+.ibkv{font-size:12px;color:var(--ts);}
+.ibkv b{color:var(--th);font-weight:600;font-feature-settings:'tnum';margin-left:4px;}
+.ibright{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.acqpill{display:flex;align-items:center;gap:5px;padding:4px 11px;border-radius:14px;font-size:12px;font-weight:600;}
+.ap-on{background:var(--greenbg);color:var(--green);border:1px solid rgba(21,128,61,.15);}
+.ap-off{background:var(--graybg);color:var(--tm);border:1px solid var(--bd);}
+.ap-on .hd{background:var(--gdot);animation:pulse 1.6s infinite;}
+.ap-off .hd{background:#cbd5e1;}
+.cyc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ts);}
+.cyc input{width:56px;padding:5px 8px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);font-size:12px;text-align:right;color:var(--th);outline:none;font-family:inherit;font-feature-settings:'tnum';}
+.cyc input:focus{border-color:var(--blue);}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:6px 13px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tp);transition:.15s;font-family:inherit;}
+.btn:hover{border-color:var(--blue);color:var(--blue);background:var(--bluebg);}
+.btn svg{width:13px;height:13px;}
+.btn-p{background:var(--blue);border-color:var(--blue);color:#fff;}
+.btn-p:hover{background:var(--blueh);border-color:var(--blueh);color:#fff;}
+.btn-warn{border-color:rgba(180,83,9,.3);color:var(--amber);background:var(--amberbg);}
+.btn-warn:hover{background:#fde68a44;border-color:var(--amber);color:var(--amber);}
+
+/* ────── TABS ────── */
+.tabcard{background:var(--card);border:1px solid var(--bd);border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;}
+.tabs{display:flex;align-items:center;border-bottom:1px solid var(--bd);padding:0 8px;background:var(--graybg);}
+.tab{padding:11px 16px;font-size:13px;color:var(--ts);cursor:pointer;position:relative;font-weight:500;transition:color .15s;display:flex;align-items:center;gap:6px;}
+.tab:hover{color:var(--th);}
+.tab.on{color:var(--blue);font-weight:600;}
+.tab.on::after{content:'';position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--blue);border-radius:2px 2px 0 0;}
+.tabtag{font-size:10px;padding:1px 6px;border-radius:8px;background:var(--bluebg);color:var(--blue);font-weight:600;font-feature-settings:'tnum';}
+.tabhint{margin-left:auto;font-size:11px;color:var(--tm);display:flex;align-items:center;gap:6px;padding-right:10px;}
+.tpane{display:none;padding:16px;}
+.tpane.on{display:block;animation:fadeIn .22s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ────── RT GROUPS ────── */
+.grp{margin-bottom:16px;}
+.grp:last-child{margin-bottom:0;}
+.grpttl{font-size:11px;font-weight:600;color:var(--tm);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;display:flex;align-items:center;gap:7px;}
+.grpttl::after{content:'';flex:1;height:1px;background:var(--bd2);}
+.rtg{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+.rtit{background:var(--bg);border-radius:8px;padding:11px 12px;border:1px solid var(--bd);position:relative;transition:border-color .3s;}
+.rtit.flash{border-color:rgba(22,119,255,.4);}
+.rtaddr{position:absolute;top:8px;right:9px;font-size:9px;color:var(--tm);font-feature-settings:'tnum';background:var(--card);padding:1px 5px;border-radius:4px;border:1px solid var(--bd2);}
+.rtlb{font-size:11px;color:var(--ts);margin-bottom:5px;}
+.rtv{font-size:18px;font-weight:700;color:var(--th);font-feature-settings:'tnum';line-height:1;transition:color .3s;}
+.rvb{color:var(--blue);}.rvg{color:var(--green);}
+.rtu{font-size:11px;font-weight:400;color:var(--ts);margin-left:2px;}
+.rtenum{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:12px;font-size:12px;font-weight:600;}
+.re-ok{background:var(--greenbg);color:var(--green);}
+.re-warn{background:var(--amberbg);color:var(--amber);}
+.re-err{background:var(--redbg);color:var(--red);}
+.re-gray{background:var(--graybg);color:var(--gray);border:1px solid var(--bd);}
+.re-blue{background:var(--bluebg);color:var(--blue);}
+.redot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+
+/* ────── TABLE ────── */
+.tblwrap{border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:var(--graybg);color:var(--ts);font-weight:600;text-align:left;padding:9px 12px;border-bottom:1px solid var(--bd);white-space:nowrap;font-size:11px;letter-spacing:.02em;}
+tbody td{padding:9px 12px;border-bottom:1px solid var(--bd2);color:var(--tp);vertical-align:middle;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr{transition:background .12s;}
+tbody tr:hover{background:#f8fbff;}
+tbody tr.flash{background:var(--bluebg);}
+.addr{font-feature-settings:'tnum';font-weight:600;color:var(--blue);font-size:12px;}
+.dtype{display:inline-block;padding:1px 7px;border-radius:9px;font-size:10px;font-weight:600;background:var(--graybg);border:1px solid var(--bd);color:var(--ts);}
+.fcode{display:inline-block;padding:1px 7px;border-radius:9px;font-size:10px;font-weight:600;font-feature-settings:'tnum';}
+.fc10{background:var(--greenbg);color:var(--green);}
+.fc06{background:var(--bluebg);color:var(--blue);}
+.tdval{font-weight:700;color:var(--th);font-feature-settings:'tnum';}
+.tddesc{color:var(--tm);font-size:11px;max-width:260px;}
+.tdtime{color:var(--tm);font-size:11px;font-feature-settings:'tnum';white-space:nowrap;}
+
+/* ────── DOWNLINK ────── */
+.dlnote{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:var(--r);background:var(--amberbg);border:1px solid rgba(180,83,9,.18);color:var(--amber);font-size:12px;margin-bottom:13px;}
+.dlnote svg{width:14px;height:14px;flex-shrink:0;}
+.dlinp{width:110px;padding:5px 9px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--th);font-size:12px;font-family:inherit;text-align:right;outline:none;transition:border-color .15s;font-feature-settings:'tnum';}
+.dlinp:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(22,119,255,.1);}
+.dlsel{padding:5px 9px;border:1px solid var(--bd);border-radius:6px;background:var(--bg);color:var(--th);font-size:12px;font-family:inherit;outline:none;cursor:pointer;transition:border-color .15s;}
+.dlsel:focus{border-color:var(--blue);}
+.sendbtn{padding:4px 14px;border-radius:6px;border:1px solid rgba(22,119,255,.3);background:var(--bluebg);color:var(--blue);font-size:12px;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit;}
+.sendbtn:hover{background:var(--blue);color:#fff;}
+.sendbtn.danger{border-color:rgba(220,38,38,.3);background:var(--redbg);color:var(--red);}
+.sendbtn.danger:hover{background:var(--red);color:#fff;}
+.unit2{font-size:11px;color:var(--tm);margin-left:5px;}
+
+/* ────── FRAME LOG ────── */
+.logtools{display:flex;align-items:center;gap:9px;margin-bottom:12px;}
+.logfilter{display:flex;gap:4px;background:var(--graybg);border:1px solid var(--bd);border-radius:7px;padding:3px;}
+.lf{padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;color:var(--ts);cursor:pointer;transition:.13s;}
+.lf.on{background:var(--card);color:var(--blue);box-shadow:var(--shadow);}
+.loglist{display:flex;flex-direction:column;gap:6px;max-height:430px;overflow-y:auto;padding-right:3px;}
+.loglist::-webkit-scrollbar{width:4px;}
+.loglist::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:4px;}
+.logrow{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);animation:fadeIn .25s ease;}
+.logt{font-size:11px;color:var(--tm);font-feature-settings:'tnum';flex-shrink:0;width:60px;padding-top:1px;}
+.logdir{flex-shrink:0;font-size:10px;font-weight:700;padding:2px 8px;border-radius:9px;letter-spacing:.03em;}
+.ld-up{background:var(--greenbg);color:var(--green);}
+.ld-dn{background:var(--bluebg);color:var(--blue);}
+.ld-err{background:var(--redbg);color:var(--red);}
+.logbody{flex:1;min-width:0;}
+.loghex{font-family:'SF Mono',Consolas,'Courier New',monospace;font-size:11px;color:var(--tp);word-break:break-all;line-height:1.55;}
+.logparse{font-size:11px;color:var(--tm);margin-top:3px;}
+.logparse b{color:var(--ts);font-weight:600;}
+
+/* ════════ 1920×1080 RESPONSIVE ════════ */
+@media (min-width:1600px){
+  body{font-size:14px;}
+  .hdr{padding:0 24px;}
+  .htitle{font-size:16px;}
+  .hclk{font-size:13px;}
+  .stats{gap:14px;margin-bottom:20px;}
+  .sc{padding:18px 20px;gap:16px;}
+  .sico{width:48px;height:48px;border-radius:11px;}
+  .sico svg{width:22px;height:22px;}
+  .scnt{font-size:28px;}
+  .su,.slb{font-size:13px;}
+  .main{padding:22px 28px 28px;}
+  .pgtitle{font-size:18px;margin-bottom:20px;}
+  .pgacc{height:20px;}
+  .acqgrid{grid-template-columns:clamp(250px,16%,300px) 1fr;gap:16px;}
+  .devnm{font-size:13px;}
+  .devid{font-size:11px;}
+  .ibname{font-size:15px;}
+  .ibkv{font-size:13px;}
+  .tab{font-size:14px;padding:12px 18px;}
+  .rtg{grid-template-columns:repeat(5,1fr);gap:10px;}
+  .rtit{padding:13px 14px;}
+  .rtlb{font-size:12px;}
+  .rtv{font-size:21px;}
+  .rtu{font-size:12px;}
+  thead th{font-size:12px;padding:10px 14px;}
+  tbody td{padding:10px 14px;font-size:13px;}
+  .tddesc{font-size:12px;max-width:340px;}
+  .loghex{font-size:12px;}
+  .loglist{max-height:520px;}
+  .ni{width:46px;height:46px;}
+  .nl{font-size:11px;}
+}
+
+/* ════════ MODAL ════════ */
+.mov{display:none;position:fixed;inset:0;background:rgba(15,23,42,.42);z-index:600;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.mov.open{display:flex;}
+.mbox{background:var(--card);border:1px solid var(--bd);border-radius:var(--rl);padding:28px;width:380px;box-shadow:var(--shadow-lg);animation:popIn .2s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+.mico{font-size:34px;text-align:center;margin-bottom:12px;}
+.mtit{font-size:15px;font-weight:700;color:var(--th);text-align:center;margin-bottom:8px;}
+.mdsc{font-size:13px;color:var(--ts);text-align:center;line-height:1.75;margin-bottom:22px;}
+.mdsc b{color:var(--th);}
+.mbtns{display:flex;gap:10px;}
+.mcan{flex:1;padding:10px;border-radius:var(--r);border:1px solid var(--bd);background:var(--graybg);color:var(--tp);font-size:13px;cursor:pointer;font-family:inherit;transition:.15s;}
+.mcan:hover{background:#e2e8f0;}
+.mok{flex:2;padding:10px;border-radius:var(--r);border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;color:#fff;transition:filter .15s;background:var(--blue);}
+.mok:hover{filter:brightness(1.08);}
+.mok.danger{background:#dc2626;}
+
+/* ════════ TOAST ════════ */
+.toast{position:fixed;bottom:20px;right:20px;z-index:700;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:11px 16px;display:flex;align-items:center;gap:9px;font-size:13px;box-shadow:var(--shadow-lg);transform:translateY(64px);opacity:0;transition:transform .26s,opacity .26s;pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.ticon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:12px;}
+.ti-ok{background:#f0fdf4;color:var(--green);}
+.ti-warn{background:var(--amberbg);color:var(--amber);}
+</style>
+<style id="embed-shell-override">
+html.embedded .hdr,html.embedded .nav{display:none!important;}
+html.embedded .main{top:0!important;left:0!important;}
+</style>
+<script>if(window.self!==window.top)document.documentElement.classList.add("embedded");</script>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hmark"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><path d="M12 2C8 7 4 10.5 4 14a8 8 0 0016 0c0-3.5-4-7-8-12z"/></svg></div>
+  <span class="htitle">智慧水利监测管理平台</span>
+  <div class="hdiv"></div>
+  <div class="hpill hp-on" id="rxPill"><div class="hd"></div>数据接收中</div>
+  <div class="hpill hp-off"><div class="hd"></div>停止接收</div>
+  <div class="hright">
+    <div class="hlat"><div class="hlatd"></div>延迟 10ms</div>
+    <span class="hclk" id="clock">2026-07-02 09:00:00</span>
+    <span class="hver">v2.4.1</span>
+    <div class="husr"><div class="hava">管</div>管理员<svg width="11" height="11" viewBox="0 0 24 24" fill="rgba(255,255,255,.38)"><path d="M7 10l5 5 5-5z"/></svg></div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="ni" title="地图"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><span class="nl">地图</span></div>
+  <div class="ni" title="检测"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><span class="nl">检测</span></div>
+  <div class="ni on" title="采集"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg><span class="nl">采集</span></div>
+  <div class="ni" title="控制"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L4.09 12.5H11L10 22L20.91 11.5H14L13 2Z"/></svg><span class="nl">控制</span></div>
+  <div class="ni" title="存储"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg><span class="nl">存储</span></div>
+  <div class="ni" title="报警"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="nl">报警</span><div class="nbadge">3</div></div>
+  <div class="ni" title="系统"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg><span class="nl">系统</span></div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="pgtitle"><div class="pgacc"></div>数据采集</div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="sc">
+      <div class="sico si-b"><svg viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 010 8.49M7.76 16.24a6 6 0 010-8.49M19.07 4.93a10 10 0 010 14.14M4.93 19.07a10 10 0 010-14.14"/></svg></div>
+      <div><div class="scnt cb">6<span class="su">台</span></div><div class="slb">在线设备</div></div>
+    </div>
+    <div class="sc">
+      <div class="sico si-g"><svg viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div><div class="scnt cg">5<span class="su">台</span></div><div class="slb">采集中</div></div>
+    </div>
+    <div class="sc">
+      <div class="sico si-a"><svg viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></div>
+      <div><div class="scnt ca" id="statTotal">12,847<span class="su">条</span></div><div class="slb">今日采集数据</div></div>
+    </div>
+    <div class="sc">
+      <div class="sico si-r"><svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+      <div><div class="scnt cr">2<span class="su">条</span></div><div class="slb">校验异常报文</div></div>
+    </div>
+  </div>
+
+  <div class="acqgrid">
+
+    <!-- DEVICE LIST -->
+    <aside class="devcard">
+      <div class="devhd">采集终端<span class="devcount">6 / 7 在线</span></div>
+      <div class="devsearch"><input type="text" placeholder="搜索设备名称 / 编号…" id="devSearch"></div>
+      <div class="devlist" id="devList"></div>
+    </aside>
+
+    <!-- RIGHT -->
+    <section class="rcol">
+
+      <!-- Device info bar -->
+      <div class="infobar">
+        <div class="ibmain">
+          <div class="ibicon"><svg viewBox="0 0 24 24" fill="none" stroke="#1677ff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg></div>
+          <div>
+            <div class="ibname" id="ibName">东渠 1# 节制闸</div>
+            <div class="ibsub">设备编号 <span id="ibDevNo">10000216</span> · 寄存器 0x1000</div>
+          </div>
+        </div>
+        <div class="ibdiv"></div>
+        <div class="ibkv">软件版本<b id="ibVer">V2.3</b></div>
+        <div class="ibkv">ICCID<b id="ibIccid">89860425128075532187</b></div>
+        <div class="ibkv">通信协议<b>Modbus RTU / LTE</b></div>
+        <div class="ibright">
+          <div class="acqpill ap-on" id="acqPill"><div class="hd"></div><span id="acqPillTxt">自动采集中</span></div>
+          <div class="cyc">上报周期<input type="number" id="cycInp" value="1" min="1" max="65535">分钟<button class="sendbtn" onclick="applyCycle()" title="写入寄存器 0x200E">应用</button></div>
+          <button class="btn" onclick="manualPoll()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>手动采集</button>
+          <button class="btn btn-warn" id="pauseBtn" onclick="togglePause()"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>暂停采集</button>
+          <button class="btn btn-p" onclick="toast('ok','已导出当前设备今日采集数据（CSV）')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出数据</button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabcard">
+        <div class="tabs">
+          <div class="tab on" data-t="rt">实时数据</div>
+          <div class="tab" data-t="up">上报寄存器<span class="tabtag">0x1000</span></div>
+          <div class="tab" data-t="dn">下发参数<span class="tabtag">0x2000</span></div>
+          <div class="tab" data-t="log">采集报文</div>
+          <div class="tabhint"><div class="hd" style="background:var(--gdot);animation:pulse 1.6s infinite;"></div>最近更新 <span id="lastPoll">--:--:--</span></div>
+        </div>
+
+        <!-- ═══ TAB 1 · 实时数据 ═══ -->
+        <div class="tpane on" id="p-rt">
+          <div class="grp">
+            <div class="grpttl">运行状态</div>
+            <div class="rtg" id="rtStatus"></div>
+          </div>
+          <div class="grp">
+            <div class="grpttl">闸位数据</div>
+            <div class="rtg" id="rtGate"></div>
+          </div>
+          <div class="grp">
+            <div class="grpttl">电气参数</div>
+            <div class="rtg" id="rtElec"></div>
+          </div>
+          <div class="grp">
+            <div class="grpttl">水文数据</div>
+            <div class="rtg" id="rtHydro"></div>
+          </div>
+        </div>
+
+        <!-- ═══ TAB 2 · 上报寄存器 0x1000 ═══ -->
+        <div class="tpane" id="p-up">
+          <div class="tblwrap">
+            <table>
+              <thead><tr>
+                <th style="width:86px">寄存器地址</th><th>数据含义</th><th style="width:96px">数据类型</th><th style="width:70px">功能码</th><th style="width:150px">当前值</th><th>取值说明</th><th style="width:80px">更新时间</th>
+              </tr></thead>
+              <tbody id="upBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ═══ TAB 3 · 下发参数 0x2000 ═══ -->
+        <div class="tpane" id="p-dn">
+          <div class="dlnote"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>下发参数将通过 LTE 链路写入现场单片机寄存器，请确认设备处于在线状态后操作。目标参数需下发 0x2000（确认生效）后方可执行。</div>
+          <div class="tblwrap">
+            <table>
+              <thead><tr>
+                <th style="width:86px">起始地址</th><th>数据含义</th><th style="width:80px">数据类型</th><th style="width:70px">功能码</th><th style="width:200px">设定值</th><th>说明</th><th style="width:90px">操作</th>
+              </tr></thead>
+              <tbody id="dnBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ═══ TAB 4 · 采集报文 ═══ -->
+        <div class="tpane" id="p-log">
+          <div class="logtools">
+            <div class="logfilter" id="logFilter">
+              <div class="lf on" data-f="all">全部</div>
+              <div class="lf" data-f="up">上报 ↑</div>
+              <div class="lf" data-f="dn">下发 ↓</div>
+              <div class="lf" data-f="err">异常</div>
+            </div>
+            <button class="btn" style="margin-left:auto" onclick="clearLog()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>清空</button>
+          </div>
+          <div class="loglist" id="logList"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- MODAL -->
+<div class="mov" id="mov">
+  <div class="mbox">
+    <div class="mico" id="mIco">📡</div>
+    <div class="mtit" id="mTit">确认下发</div>
+    <div class="mdsc" id="mDsc"></div>
+    <div class="mbtns">
+      <button class="mcan" onclick="closeModal()">取消</button>
+      <button class="mok" id="mOk">确认下发</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="ticon ti-ok" id="tIcon">✓</div><span id="tMsg"></span></div>
+
+<script>
+/* ══════════ 时钟 ══════════ */
+function pad(n){return String(n).padStart(2,'0');}
+function tick(){const d=new Date();document.getElementById('clock').textContent=
+ d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());}
+tick();setInterval(tick,1000);
+function nowT(){const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());}
+
+/* ══════════ 设备清单 ══════════ */
+const devices=[
+ {name:'东渠 1# 节制闸',no:'10000216',online:true, ver:'V2.3',iccid:'89860425128075532187'},
+ {name:'东渠 2# 节制闸',no:'10000217',online:true, ver:'V2.3',iccid:'89860425128075532410'},
+ {name:'西干渠分水闸',  no:'10000305',online:true, ver:'V2.2',iccid:'89860425128075530092'},
+ {name:'南湖泵站进水闸',no:'10000412',online:true, ver:'V2.3',iccid:'89860425128075533871'},
+ {name:'北闸退水闸',    no:'10000520',online:true, ver:'V2.1',iccid:'89860425128075529664'},
+ {name:'团结渠节制闸',  no:'10000618',online:true, ver:'V2.3',iccid:'89860425128075534502'},
+ {name:'红旗渠 3# 闸',  no:'10000733',online:false,ver:'V2.0',iccid:'89860425128075526118'},
+];
+let curDev=0;
+function renderDevs(kw){
+  const box=document.getElementById('devList');box.innerHTML='';
+  devices.forEach((d,i)=>{
+    if(kw&&!(d.name.includes(kw)||d.no.includes(kw)))return;
+    const el=document.createElement('div');
+    el.className='devi'+(i===curDev?' on':'');
+    el.innerHTML=`<div class="devdot ${d.online?'dd-on':'dd-off'}"></div>
+      <div><div class="devnm">${d.name}</div><div class="devid">编号 ${d.no}</div></div>
+      <span class="devtag ${d.online?'dt-on':'dt-off'}">${d.online?'在线':'离线'}</span>`;
+    el.onclick=()=>{curDev=i;renderDevs(document.getElementById('devSearch').value.trim());loadDevice();};
+    box.appendChild(el);
+  });
+}
+document.getElementById('devSearch').addEventListener('input',e=>renderDevs(e.target.value.trim()));
+
+/* ══════════ 寄存器定义（依据 LTE 寄存器规划表） ══════════ */
+const ENUM={
+ run:{0:['正常','ok'],1:['软下限位停机','warn'],2:['到达目标','blue'],3:['参数配置错误','err']},
+ estop:{0:['正常','ok'],1:['急停','err']},
+ dir:{0:['停止','gray'],1:['开闸','ok'],2:['关闸','blue']},
+ limit:{0:['未触发','gray'],1:['触发','warn']},
+};
+/* 上行寄存器 0x1000（单片机主动上报，LTE 接收，功能码 0x10） */
+const upRegs=[
+ {a:'0x1000',n:'设备编号',t:'uint32',d:'设备编号',k:'devNo',fmt:v=>v},
+ {a:'0x1002',n:'设备运行状态',t:'uint8',d:'0=正常 1=软下限位停机 2=到达目标 3=参数配置错误',k:'run',en:'run'},
+ {a:'0x1003',n:'急停状态',t:'uint8',d:'0=正常 1=急停',k:'estop',en:'estop'},
+ {a:'0x1004',n:'电机方向',t:'uint8',d:'0=停止 1=开闸 2=关闸',k:'dir',en:'dir'},
+ {a:'0x1005',n:'上限位状态',t:'uint8',d:'0=未触发 1=触发',k:'upLim',en:'limit'},
+ {a:'0x1006',n:'下限位状态',t:'uint8',d:'0=未触发 1=触发',k:'dnLim',en:'limit'},
+ {a:'0x1007',n:'实时闸位高度',t:'float',d:'编码器编码值 × 闸门开度系数 K',k:'gate',u:'mm',fmt:v=>v.toFixed(1)},
+ {a:'0x1009',n:'编码器值',t:'uint32',d:'4 字节，占用连续 2 个寄存器',k:'enc',fmt:v=>Math.round(v).toLocaleString()},
+ {a:'0x100B',n:'系统电压',t:'float',d:'从电机驱动器读取',k:'volt',u:'V',fmt:v=>v.toFixed(1)},
+ {a:'0x100D',n:'运行电流',t:'float',d:'从电机驱动器读取',k:'curr',u:'A',fmt:v=>v.toFixed(2)},
+ {a:'0x100F',n:'闸前水位',t:'float',d:'从流量计获得',k:'level',u:'m',fmt:v=>v.toFixed(2)},
+ {a:'0x1011',n:'瞬时流量',t:'float',d:'从流量计获得',k:'flow',u:'m³/s',fmt:v=>v.toFixed(2)},
+ {a:'0x1013',n:'瞬时流速',t:'float',d:'从流量计获得',k:'speed',u:'m/s',fmt:v=>v.toFixed(2)},
+ {a:'0x1015',n:'累计流量',t:'float',d:'从流量计获得',k:'total',u:'万m³',fmt:v=>v.toFixed(1)},
+ {a:'0x1017',n:'软件版本',t:'float',d:'软件版本迭代',k:'ver',fmt:v=>v},
+ {a:'0x1019',n:'ICCID 卡号',t:'ASCII',d:'从 LTE 模块获得，占 11 个寄存器（0x1019~0x1023）',k:'iccid',fmt:v=>v},
+];
+/* 下行寄存器 0x2000（LTE 下发，单片机接收） */
+const dnRegs=[
+ {a:'0x2000',n:'自动控制目标参数确认生效',t:'uint8',f:'0x06',d:'0=不使能 1=使能',kind:'en'},
+ {a:'0x2001',n:'开闸使能',t:'uint8',f:'0x06',d:'0=不使能 1=使能',kind:'en'},
+ {a:'0x2002',n:'关闸使能',t:'uint8',f:'0x06',d:'0=不使能 1=使能',kind:'en'},
+ {a:'0x2003',n:'停止使能',t:'uint8',f:'0x06',d:'0=不使能 1=使能',kind:'en'},
+ {a:'0x2004',n:'系统复位',t:'uint8',f:'0x06',d:'0=不使能 1=使能',kind:'en',danger:true},
+ {a:'0x2005',n:'恢复出厂设置',t:'uint8',f:'0x06',d:'0=不使能 1=使能',kind:'en',danger:true},
+ {a:'0x2006',n:'闸门设定位置',t:'float',f:'0x10',d:'自动控制目标值',kind:'num',u:'mm',def:'850.0'},
+ {a:'0x2008',n:'目标流量设定值',t:'float',f:'0x10',d:'自动控制目标值',kind:'num',u:'m³/s',def:'12.50'},
+ {a:'0x200A',n:'目标水位设定值',t:'float',f:'0x10',d:'自动控制目标值',kind:'num',u:'m',def:'3.20'},
+ {a:'0x200C',n:'目标恒定项选择',t:'uint8',f:'0x06',d:'0=不生效 1=恒定开度 2=恒定流量 3=恒定水位',kind:'sel',opts:['0 - 不生效','1 - 恒定开度','2 - 恒定流量','3 - 恒定水位']},
+ {a:'0x200D',n:'APN 参数',t:'uint8',f:'0x06',d:'1=移动 2=联通 3=电信',kind:'sel',opts:['1 - 移动','2 - 联通','3 - 电信']},
+ {a:'0x200E',n:'LTE 信息发送时间',t:'uint16',f:'0x06',d:'范围 1~65535，单位分钟',kind:'num',u:'分钟',def:'1'},
+];
+
+/* ══════════ 实时值（模拟采集） ══════════ */
+let V={};
+function seedValues(){
+  const d=devices[curDev];
+  V={devNo:d.no,run:0,estop:0,dir:1,upLim:0,dnLim:0,
+     gate:826.4,enc:412873,volt:222.8,curr:3.42,
+     level:3.18,flow:12.36,speed:0.86,total:1268.4,
+     ver:d.ver.replace('V',''),iccid:d.iccid};
+}
+function jitter(){
+  V.gate=Math.max(0,V.gate+(Math.random()-.44)*2.4);
+  V.enc=V.gate*499.6+Math.random()*40;
+  V.volt=222+Math.random()*2.4;
+  V.curr=3.2+Math.random()*.5;
+  V.level=3.1+Math.random()*.18;
+  V.flow=12.1+Math.random()*.7;
+  V.speed=.8+Math.random()*.12;
+  V.total+=V.flow*1e-4;
+  if(Math.random()<.06)V.dir=[0,1,2][Math.floor(Math.random()*3)];
+  V.run=V.dir===0&&Math.random()<.5?2:0;
+}
+
+/* ══════════ 实时数据面板 ══════════ */
+function tile(reg,extra=''){
+  const id='rt-'+reg.k;
+  return `<div class="rtit" id="${id}"><span class="rtaddr">${reg.a}</span><div class="rtlb">${reg.n}</div><div class="rtv ${extra}" id="${id}-v">--</div></div>`;
+}
+function enumBadge(en,val){
+  const [txt,cls]=ENUM[en][val]||['未知','gray'];
+  return `<span class="rtenum re-${cls}"><span class="redot"></span>${txt}</span>`;
+}
+function buildRT(){
+  const g=k=>upRegs.find(r=>r.k===k);
+  document.getElementById('rtStatus').innerHTML=[g('run'),g('estop'),g('dir'),g('upLim'),g('dnLim')].map(r=>tile(r)).join('');
+  document.getElementById('rtGate').innerHTML=[g('gate'),g('enc')].map(r=>tile(r,'rvb')).join('');
+  document.getElementById('rtElec').innerHTML=[g('volt'),g('curr')].map(r=>tile(r)).join('');
+  document.getElementById('rtHydro').innerHTML=[g('level'),g('flow'),g('speed'),g('total')].map(r=>tile(r,'rvg')).join('');
+}
+function paintRT(flash){
+  upRegs.forEach(r=>{
+    const el=document.getElementById('rt-'+r.k+'-v');if(!el)return;
+    const box=document.getElementById('rt-'+r.k);
+    if(r.en){el.innerHTML=enumBadge(r.en,V[r.k]);}
+    else{el.innerHTML=(r.fmt?r.fmt(V[r.k]):V[r.k])+(r.u?`<span class="rtu">${r.u}</span>`:'');}
+    if(flash&&!r.en){box.classList.add('flash');setTimeout(()=>box.classList.remove('flash'),500);}
+  });
+}
+
+/* ══════════ 上报寄存器表 ══════════ */
+function buildUp(){
+  document.getElementById('upBody').innerHTML=upRegs.map(r=>`
+   <tr id="row-${r.k}">
+     <td class="addr">${r.a}</td>
+     <td>${r.n}${r.u?`<span class="unit2">(${r.u})</span>`:''}</td>
+     <td><span class="dtype">${r.t}</span></td>
+     <td><span class="fcode fc10">0x10</span></td>
+     <td class="tdval" id="val-${r.k}">--</td>
+     <td class="tddesc">${r.d}</td>
+     <td class="tdtime" id="tim-${r.k}">--</td>
+   </tr>`).join('');
+}
+function paintUp(flash){
+  const t=nowT();
+  upRegs.forEach(r=>{
+    const el=document.getElementById('val-'+r.k);if(!el)return;
+    el.innerHTML=r.en?enumBadge(r.en,V[r.k]):(r.fmt?r.fmt(V[r.k]):V[r.k])+(r.u?`<span class="unit2">${r.u}</span>`:'');
+    document.getElementById('tim-'+r.k).textContent=t;
+    if(flash){const row=document.getElementById('row-'+r.k);row.classList.add('flash');setTimeout(()=>row.classList.remove('flash'),450);}
+  });
+  document.getElementById('lastPoll').textContent=t;
+}
+
+/* ══════════ 下发参数表 ══════════ */
+function buildDn(){
+  document.getElementById('dnBody').innerHTML=dnRegs.map((r,i)=>{
+    let ctrl='';
+    if(r.kind==='en')ctrl=`<span class="rtenum re-gray"><span class="redot"></span>待触发</span>`;
+    if(r.kind==='num')ctrl=`<input class="dlinp" id="dn-${i}" type="number" value="${r.def}"><span class="unit2">${r.u}</span>`;
+    if(r.kind==='sel')ctrl=`<select class="dlsel" id="dn-${i}">${r.opts.map((o,j)=>`<option value="${o.split(' ')[0]}"${j===(r.a==='0x200D'?0:0)?' selected':''}>${o}</option>`).join('')}</select>`;
+    const btn=r.kind==='en'
+      ?`<button class="sendbtn${r.danger?' danger':''}" onclick="askSend(${i},1)">${r.danger?'执行':'下发 1'}</button>`
+      :`<button class="sendbtn" onclick="askSend(${i})">写入</button>`;
+    return `<tr>
+      <td class="addr">${r.a}</td><td>${r.n}</td>
+      <td><span class="dtype">${r.t}</span></td>
+      <td><span class="fcode ${r.f==='0x06'?'fc06':'fc10'}">${r.f}</span></td>
+      <td>${ctrl}</td>
+      <td class="tddesc">${r.d}</td>
+      <td>${btn}</td></tr>`;
+  }).join('');
+}
+
+/* ══════════ 报文日志 ══════════ */
+let logFilter='all',logs=[];
+function hex2(n){return n.toString(16).toUpperCase().padStart(2,'0');}
+function frameUp(){
+  const bytes=['01','10','10','00','00','24','48'];
+  for(let i=0;i<12;i++)bytes.push(hex2(Math.floor(Math.random()*256)));
+  bytes.push('…',hex2(Math.floor(Math.random()*256)),hex2(Math.floor(Math.random()*256)));
+  return bytes.join(' ');
+}
+function addLog(dir,parse,hex){
+  logs.unshift({t:nowT(),dir,parse,hex});
+  if(logs.length>60)logs.pop();
+  renderLog();
+}
+function renderLog(){
+  const box=document.getElementById('logList');
+  const rows=logs.filter(l=>logFilter==='all'||l.dir===logFilter);
+  box.innerHTML=rows.length?rows.map(l=>`
+    <div class="logrow">
+      <span class="logt">${l.t}</span>
+      <span class="logdir ${l.dir==='up'?'ld-up':l.dir==='dn'?'ld-dn':'ld-err'}">${l.dir==='up'?'上报 ↑':l.dir==='dn'?'下发 ↓':'异常 ✕'}</span>
+      <div class="logbody"><div class="loghex">${l.hex}</div><div class="logparse">${l.parse}</div></div>
+    </div>`).join('')
+   :'<div style="text-align:center;color:var(--tm);font-size:12px;padding:36px 0;">暂无报文记录，等待下一采集周期…</div>';
+}
+document.getElementById('logFilter').addEventListener('click',e=>{
+  const f=e.target.dataset.f;if(!f)return;logFilter=f;
+  document.querySelectorAll('.lf').forEach(x=>x.classList.toggle('on',x.dataset.f===f));
+  renderLog();
+});
+function clearLog(){logs=[];renderLog();toast('ok','报文记录已清空');}
+
+/* ══════════ 采集循环 ══════════ */
+let paused=false,total=12847;
+function poll(manual){
+  if(!devices[curDev].online){if(manual)toast('warn','设备离线，无法采集');return;}
+  jitter();paintRT(true);paintUp(true);
+  total++;document.getElementById('statTotal').innerHTML=total.toLocaleString()+'<span class="su">条</span>';
+  addLog('up',`<b>${devices[curDev].name}</b> · 功能码 0x10 · 上报寄存器 0x1000~0x1023（36 寄存器）· CRC 校验通过`,frameUp());
+}
+setInterval(()=>{if(!paused)poll();},4000);
+function manualPoll(){poll(true);toast('ok','已向设备发送读取指令，数据已刷新');}
+function togglePause(){
+  paused=!paused;
+  const p=document.getElementById('acqPill'),b=document.getElementById('pauseBtn');
+  if(paused){p.className='acqpill ap-off';document.getElementById('acqPillTxt').textContent='采集已暂停';
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M8 5v14l11-7z"/></svg>恢复采集';
+    toast('warn','自动采集已暂停');}
+  else{p.className='acqpill ap-on';document.getElementById('acqPillTxt').textContent='自动采集中';
+    b.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>暂停采集';
+    toast('ok','自动采集已恢复');}
+}
+function applyCycle(){
+  const v=parseInt(document.getElementById('cycInp').value,10);
+  if(!v||v<1||v>65535){toast('warn','上报周期须在 1~65535 分钟范围内');return;}
+  askCustom('设置上报周期',`将向寄存器 <b>0x200E</b>（LTE 信息发送时间，uint16，功能码 0x06）写入 <b>${v}</b> 分钟，确认下发？`,()=>{
+    addLog('dn',`写单寄存器 0x200E = ${v}（LTE 信息发送时间）· 功能码 0x06 · 设备响应正常`,`01 06 20 0E ${hex2(v>>8)} ${hex2(v&255)} ${hex2(Math.random()*256|0)} ${hex2(Math.random()*256|0)}`);
+    toast('ok',`上报周期已下发：${v} 分钟`);
+  });
+}
+
+/* ══════════ 下发确认 ══════════ */
+let pendingOk=null;
+function askSend(i,enVal){
+  const r=dnRegs[i];
+  let val=enVal;
+  if(r.kind!=='en'){const inp=document.getElementById('dn-'+i);val=inp.value;
+    if(val===''||(r.a==='0x200E'&&(val<1||val>65535))){toast('warn','请输入有效设定值');return;}}
+  askCustom(r.danger?'高危操作确认':'确认下发',
+    `将向 <b>${devices[curDev].name}</b> 寄存器 <b>${r.a}</b>（${r.n}，功能码 ${r.f}）写入值 <b>${val}</b>${r.u?' '+r.u:''}，确认下发？`,
+    ()=>{
+      const fc=r.f==='0x06'?'06':'10';
+      addLog('dn',`写寄存器 ${r.a} = ${val}（${r.n}）· 功能码 ${r.f} · 设备响应正常`,
+        `01 ${fc} ${r.a.slice(2,4)} ${r.a.slice(4)} ${hex2(Math.random()*256|0)} ${hex2(Math.random()*256|0)} ${hex2(Math.random()*256|0)} ${hex2(Math.random()*256|0)}`);
+      toast('ok',`${r.n} 已下发成功`);
+    },r.danger);
+}
+function askCustom(tit,dsc,ok,danger){
+  document.getElementById('mTit').textContent=tit;
+  document.getElementById('mDsc').innerHTML=dsc;
+  document.getElementById('mIco').textContent=danger?'⚠️':'📡';
+  const b=document.getElementById('mOk');
+  b.className='mok'+(danger?' danger':'');
+  pendingOk=ok;
+  document.getElementById('mov').classList.add('open');
+}
+document.getElementById('mOk').onclick=()=>{closeModal();if(pendingOk)pendingOk();pendingOk=null;};
+function closeModal(){document.getElementById('mov').classList.remove('open');}
+document.getElementById('mov').addEventListener('click',e=>{if(e.target.id==='mov')closeModal();});
+
+/* ══════════ Toast ══════════ */
+let toastTimer=null;
+function toast(type,msg){
+  const t=document.getElementById('toast'),ic=document.getElementById('tIcon');
+  ic.className='ticon '+(type==='ok'?'ti-ok':'ti-warn');
+  ic.textContent=type==='ok'?'✓':'!';
+  document.getElementById('tMsg').textContent=msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ══════════ Tab 切换 ══════════ */
+document.querySelectorAll('.tab').forEach(tb=>tb.onclick=()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('.tpane').forEach(x=>x.classList.remove('on'));
+  tb.classList.add('on');
+  document.getElementById('p-'+tb.dataset.t).classList.add('on');
+});
+
+/* ══════════ 设备切换 ══════════ */
+function loadDevice(){
+  const d=devices[curDev];
+  document.getElementById('ibName').textContent=d.name;
+  document.getElementById('ibDevNo').textContent=d.no;
+  document.getElementById('ibVer').textContent=d.ver;
+  document.getElementById('ibIccid').textContent=d.iccid;
+  seedValues();paintRT(false);paintUp(false);
+  if(!d.online)toast('warn','该设备当前离线，展示最近一次采集数据');
+}
+
+/* ══════════ 初始化 ══════════ */
+renderDevs('');buildRT();buildUp();buildDn();seedValues();
+paintRT(false);paintUp(false);
+addLog('up','<b>东渠 1# 节制闸</b> · 功能码 0x10 · 上报寄存器 0x1000~0x1023（36 寄存器）· CRC 校验通过',frameUp());
+addLog('err','校验异常：CRC 不匹配，已丢弃并请求重传','01 10 10 00 00 24 48 3F A2 00 17 ?? ?? — CRC FAIL');
+addLog('dn','写单寄存器 0x200E = 1（LTE 信息发送时间）· 功能码 0x06 · 设备响应正常','01 06 20 0E 00 01 E3 CA');
+setTimeout(()=>poll(),800);
+</script>
+</body>
+</html>
