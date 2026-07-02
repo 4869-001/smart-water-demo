@@ -449,7 +449,9 @@ input,select,button,textarea{font-family:var(--font);}
 .mov.open{display:flex;}
 .mbox{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:32px;width:420px;box-shadow:var(--shadow-lg);animation:popIn .25s cubic-bezier(.4,0,.2,1);}
 @keyframes popIn{from{opacity:0;transform:scale(.92) translateY(8px)}to{opacity:1;transform:none}}
-.mico{font-size:40px;text-align:center;margin-bottom:16px;}
+.mico{width:54px;height:54px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;background:var(--bluebg);color:var(--blue);}
+.mico svg{width:27px;height:27px;}
+.mico.danger{background:var(--redbg);color:var(--red);}
 .mtit{font-size:16px;font-weight:700;color:var(--th);text-align:center;margin-bottom:12px;letter-spacing:.01em;}
 .mdsc{font-size:13px;color:var(--ts);text-align:center;line-height:1.8;margin-bottom:24px;}
 .mbtns{display:flex;gap:10px;}
@@ -792,7 +794,7 @@ input,select,button,textarea{font-family:var(--font);}
             <button class="cconfirm" id="btn-setparams" style="flex:1" onclick="doAct('setParams')" title="写入 0x200C + 0x2006/0x2008/0x200A，待使能生效">① 参数设定</button>
             <button class="cconfirm" id="btn-enable" style="flex:1;background:#15803d" onclick="doAct('enable')" title="写 0x2000=1（自动控制使能），0x200C≠0 时才有效">② 使能生效</button>
           </div>
-          <div id="params-status">⚠ 参数已设定，待使能生效</div>
+          <div id="params-status">※ 参数已设定，待使能生效</div>
         </div>
       </div>
       <!-- 系统维护 -->
@@ -832,7 +834,7 @@ input,select,button,textarea{font-family:var(--font);}
 <!-- MODAL -->
 <div class="mov" id="mOv" onclick="if(event.target===this)closeMod()">
   <div class="mbox">
-    <div class="mico" id="mIco">⚠️</div>
+    <div class="mico" id="mIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
     <div class="mtit" id="mTit">确认操作</div>
     <div class="mdsc" id="mDsc"></div>
     <div class="mbtns">
@@ -1334,32 +1336,32 @@ function updateParamsStatus(g){
 
 /* ── ACTIONS ── */
 const acfg={
-  open:{ico:'🔓',tit:'确认开启操作',dsc:'即将对 <b>%G%</b> 执行 <b style="color:#15803d">开启</b> 操作，闸门将向上移动。请确认控制权限后继续。',okc:'mo',okt:'确认开启'},
-  close:{ico:'🔒',tit:'确认关闭操作',dsc:'即将对 <b>%G%</b> 执行 <b style="color:#dc2626">关闭</b> 操作，闸门将完全下降至底部。',okc:'mc',okt:'确认关闭'},
-  stop:{ico:'⏹',tit:'确认停止操作',dsc:'即将对 <b>%G%</b> 发送 <b>停止</b> 指令，闸门将保持当前位置。',okc:'ms',okt:'确认停止'},
-  emstop:{ico:'🆘',tit:'确认急停操作',dsc:'即将对 <b>%G%</b> 触发 <b style="color:#dc2626">急停保护</b>，电机将立即断电，闸门保持当前位置。此操作不可撤销！',okc:'mc',okt:'确认急停'},
-  setParams:{ico:'📝',tit:'设定目标参数',dsc:
+  open:{ico:'<circle cx="12" cy="12" r="10"/><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/>',tit:'确认开启操作',dsc:'即将对 <b>%G%</b> 执行 <b style="color:#15803d">开启</b> 操作，闸门将向上移动。请确认控制权限后继续。',okc:'mo',okt:'确认开启'},
+  close:{ico:'<circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/>',tit:'确认关闭操作',dsc:'即将对 <b>%G%</b> 执行 <b style="color:#dc2626">关闭</b> 操作，闸门将完全下降至底部。',okc:'mc',okt:'确认关闭'},
+  stop:{ico:'<circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1"/>',tit:'确认停止操作',dsc:'即将对 <b>%G%</b> 发送 <b>停止</b> 指令，闸门将保持当前位置。',okc:'ms',okt:'确认停止'},
+  emstop:{ico:'<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',tit:'确认急停操作',dsc:'即将对 <b>%G%</b> 触发 <b style="color:#dc2626">急停保护</b>，电机将立即断电，闸门保持当前位置。此操作不可撤销！',okc:'mc',okt:'确认急停'},
+  setParams:{ico:'<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',tit:'设定目标参数',dsc:
     '<div style="text-align:left;font-size:12px;line-height:1.8">'
     +'为 <b>%G%</b> 设定自动控制参数：'
     +'<div style="background:var(--bg);border-radius:6px;padding:10px 12px;margin:8px 0">'
-    +'<div>🎯 恒定模式：<b>%M%</b></div>'
+    +'<div>恒定模式：<b>%M%</b></div>'
     +'<div style="margin-top:4px;color:var(--ts);font-size:11px">%V%</div>'
     +'</div>'
-    +'<div style="color:var(--amber);font-size:11px">⚠ 参数设定后需点击「使能生效」才会下发执行</div>'
+    +'<div style="color:var(--amber);font-size:11px">※ 参数设定后需点击「使能生效」才会下发执行</div>'
     +'</div>',
     okc:'mp',okt:'确认设定'},
-  enable:{ico:'✅',tit:'使能自动控制',dsc:
+  enable:{ico:'<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',tit:'使能自动控制',dsc:
     '<div style="text-align:left;font-size:12px;line-height:1.8">'
     +'确认对 <b>%G%</b> 下发 <b>自动控制使能</b> 指令：'
     +'<div style="background:var(--bg);border-radius:6px;padding:10px 12px;margin:8px 0">'
     +'%P%'
     +'</div>'
-    +'<div style="color:#dc2626;font-size:11px">⚠ 使能后设备将按以上参数自动运行，请确认现场安全</div>'
+    +'<div style="color:#dc2626;font-size:11px">※ 使能后设备将按以上参数自动运行，请确认现场安全</div>'
     +'</div>',
     okc:'mo',okt:'确认使能'},
-  reset:{ico:'🔄',tit:'确认系统复位',dsc:'即将对 <b>%G%</b> 执行 <b>系统复位</b>，设备将重新初始化运行参数，急停状态将被清除。',okc:'ms',okt:'确认复位'},
-  factory:{ico:'⚠️',tit:'确认恢复出厂设置',dsc:'即将对 <b>%G%</b> 执行 <b style="color:#dc2626">恢复出厂设置</b>，所有参数恢复为出厂默认值。此操作不可撤销！',okc:'mc',okt:'确认恢复'},
-  commConfig:{ico:'📡',tit:'通信参数配置',dsc:
+  reset:{ico:'<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>',tit:'确认系统复位',dsc:'即将对 <b>%G%</b> 执行 <b>系统复位</b>，设备将重新初始化运行参数，急停状态将被清除。',okc:'ms',okt:'确认复位'},
+  factory:{ico:'<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',tit:'确认恢复出厂设置',dsc:'即将对 <b>%G%</b> 执行 <b style="color:#dc2626">恢复出厂设置</b>，所有参数恢复为出厂默认值。此操作不可撤销！',okc:'mc',okt:'确认恢复'},
+  commConfig:{ico:'<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 010 8.49M7.76 16.24a6 6 0 010-8.49M19.07 4.93a10 10 0 010 14.14M4.93 19.07a10 10 0 010-14.14"/>',tit:'通信参数配置',dsc:
     '<div style="text-align:left;font-size:12px;line-height:1.8">'
     +'更新 <b>%G%</b> 的通信参数：'
     +'<div style="background:var(--bg);border-radius:6px;padding:10px 12px;margin:8px 0">'
@@ -1373,27 +1375,27 @@ function doAct(action){
   const g=gates.find(x=>x.id===curId);
   // 急停互锁：除「系统复位」外，急停状态下拒绝一切操作
   if(g&&g.emStop&&action!=='reset'){
-    showToast('warn','⚠ 设备处于急停状态，请先执行「系统复位」解除');
+    showToast('warn','※ 设备处于急停状态，请先执行「系统复位」解除');
     return;
   }
   // 上下限位互锁检查
   if(action==='open'&&g.upLimit){
-    showToast('warn','⚠ 上限位已触发，闸门已到达最大开度，无法继续开启');
+    showToast('warn','※ 上限位已触发，闸门已到达最大开度，无法继续开启');
     return;
   }
   if(action==='close'&&g.dwLimit){
-    showToast('warn','⚠ 下限位已触发，闸门已到达最小开度，无法继续关闭');
+    showToast('warn','※ 下限位已触发，闸门已到达最小开度，无法继续关闭');
     return;
   }
   // 使能生效前必须先设定参数（0x200C必须≠0才有意义写0x2000=1）
   if(action==='enable'){
     if(!g._setParams){
-      showToast('warn','⚠ 请先点击「参数设定」完成目标值配置，再使能生效');
+      showToast('warn','※ 请先点击「参数设定」完成目标值配置，再使能生效');
       return;
     }
     const mode=g.targetMode||0;
     if(mode===0){
-      showToast('warn','⚠ 恒定模式为「不生效」（0x200C=0），使能无意义，请先选择控制模式');
+      showToast('warn','※ 恒定模式为「不生效」（0x200C=0），使能无意义，请先选择控制模式');
       return;
     }
   }
@@ -1427,9 +1429,9 @@ function doAct(action){
       paramHtml+='<div style="margin-top:2px;color:var(--ts);font-size:11px">'
         +'闸位：'+Math.round((g.targetOp!=null?g.targetOp:g.op)*1000)+'mm | 流量：'+(g.targetFlow||0).toFixed(3)+'m³/s | 水位：'+(g.targetLevel||0).toFixed(2)+'m'
         +'</div>';
-      if(m===0)paramHtml+='<div style="color:#dc2626;font-size:11px;margin-top:4px">⚠ 恒定模式为「不生效」，使能将不会触发自动控制</div>';
+      if(m===0)paramHtml+='<div style="color:#dc2626;font-size:11px;margin-top:4px">※ 恒定模式为「不生效」，使能将不会触发自动控制</div>';
     }else{
-      paramHtml='<div style="color:var(--amber);font-size:12px">⚠ 尚未设定参数，请先点击「参数设定」配置目标值</div>';
+      paramHtml='<div style="color:var(--amber);font-size:12px">※ 尚未设定参数，请先点击「参数设定」配置目标值</div>';
     }
     dsc=dsc.replace('%P%',paramHtml);
   }
@@ -1444,7 +1446,9 @@ function doAct(action){
     dsc=dsc.replace('%C%',changeHtml);
   }
 
-  document.getElementById('mIco').textContent=c.ico;
+  const _mi=document.getElementById('mIco');
+  _mi.className='mico'+(['close','emstop','factory'].includes(pending)?' danger':'');
+  _mi.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+c.ico+'</svg>';
   document.getElementById('mTit').textContent=c.tit;
   document.getElementById('mDsc').innerHTML=dsc;
   const ok=document.getElementById('mBtn');ok.className='mok '+c.okc;ok.textContent=c.okt;
@@ -1460,7 +1464,7 @@ function confirmAct(){
   const tM={open:'to',close:'tc',stop:'ts2',emstop:'tc',setParams:'tp',enable:'to',reset:'ts2',factory:'tc',commConfig:'tp'};
 
   if(pending==='open'){
-    if(g.upLimit){showToast('warn','⚠ 上限位已触发，无法执行开启操作');return;}
+    if(g.upLimit){showToast('warn','※ 上限位已触发，无法执行开启操作');return;}
     // 0x2001 开闸使能写1：仅触发电机上行，限位由设备端0x1005/0x1006回报，闸位由0x1007持续更新
     // 前端不直接修改 op（闸位），不清零限位寄存器（只读字段）
     g.status='running';g.gSt='开启';g.motorDir=1;
@@ -1470,7 +1474,7 @@ function confirmAct(){
     if(g.op>=g.mo)g.gSt='全开';
   }
   if(pending==='close'){
-    if(g.dwLimit){showToast('warn','⚠ 下限位已触发，无法执行关闭操作');return;}
+    if(g.dwLimit){showToast('warn','※ 下限位已触发，无法执行关闭操作');return;}
     // 0x2002 关闸使能写1：仅触发电机下行，不清零 upLimit（只读字段0x1005）
     g.status='closed';g.gSt='关闭';g.motorDir=2;
     // 模拟：闸门缓慢下行

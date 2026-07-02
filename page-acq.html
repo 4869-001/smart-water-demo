@@ -254,7 +254,9 @@ tbody tr.flash{background:var(--bluebg);}
 .mov.open{display:flex;}
 .mbox{background:var(--card);border:1px solid var(--bd);border-radius:var(--rl);padding:28px;width:380px;box-shadow:var(--shadow-lg);animation:popIn .2s ease;}
 @keyframes popIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
-.mico{font-size:34px;text-align:center;margin-bottom:12px;}
+.mico{width:52px;height:52px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;background:var(--bluebg);color:var(--blue);}
+.mico svg{width:26px;height:26px;}
+.mico.danger{background:var(--redbg);color:var(--red);}
 .mtit{font-size:15px;font-weight:700;color:var(--th);text-align:center;margin-bottom:8px;}
 .mdsc{font-size:13px;color:var(--ts);text-align:center;line-height:1.75;margin-bottom:22px;}
 .mdsc b{color:var(--th);}
@@ -437,7 +439,7 @@ tbody tr.flash{background:var(--bluebg);}
 <!-- MODAL -->
 <div class="mov" id="mov">
   <div class="mbox">
-    <div class="mico" id="mIco">📡</div>
+    <div class="mico" id="mIco"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 010 8.49M7.76 16.24a6 6 0 010-8.49M19.07 4.93a10 10 0 010 14.14M4.93 19.07a10 10 0 010-14.14"/></svg></div>
     <div class="mtit" id="mTit">确认下发</div>
     <div class="mdsc" id="mDsc"></div>
     <div class="mbtns">
@@ -698,7 +700,10 @@ function askSend(i,enVal){
 function askCustom(tit,dsc,ok,danger){
   document.getElementById('mTit').textContent=tit;
   document.getElementById('mDsc').innerHTML=dsc;
-  document.getElementById('mIco').textContent=danger?'⚠️':'📡';
+  {const _mi=document.getElementById('mIco');_mi.className='mico'+(danger?' danger':'');
+   _mi.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(danger
+     ?'<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'
+     :'<circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 010 8.49M7.76 16.24a6 6 0 010-8.49M19.07 4.93a10 10 0 010 14.14M4.93 19.07a10 10 0 010-14.14"/>')+'</svg>';}
   const b=document.getElementById('mOk');
   b.className='mok'+(danger?' danger':'');
   pendingOk=ok;
