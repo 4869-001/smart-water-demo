@@ -10,6 +10,9 @@
   style.id = 'embed-shell-override';
   style.textContent =
     '.hdr,.nav{display:none!important;}' +
-    '.main{top:0!important;left:0!important;}';
+    '.main{top:0!important;left:0!important;}' +
+    /* 控制页的覆盖层原按顶栏高/导航宽偏移，嵌入后 chrome 已隐藏需归零，否则错位 */
+    '.spg{top:0!important;left:0!important;}' +
+    '.drawer{top:0!important;}';
   (document.head || document.documentElement).appendChild(style);
 })();
