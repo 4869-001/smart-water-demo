@@ -258,6 +258,7 @@ input,select,button,textarea{font-family:var(--font);}
 .cst{background:var(--graybg);color:var(--tp);border:1.5px solid var(--bd);box-shadow:none;}
 .cst:hover:not(:disabled){background:var(--grayh);border-color:var(--tm);}
 .cem{background:linear-gradient(135deg,#e11d48,#be123c);color:#fff;box-shadow:0 2px 10px rgba(225,29,72,.35);}
+.cbig.cem.undo{background:linear-gradient(135deg,#16a34a,#15803d);box-shadow:0 2px 10px rgba(22,163,74,.32);}
 .cem:hover:not(:disabled){box-shadow:0 4px 14px rgba(225,29,72,.45);}
 .cbig svg{width:15px;height:15px;flex-shrink:0;}
 
@@ -773,7 +774,7 @@ input,select,button,textarea{font-family:var(--font);}
           <button class="cbig cst" id="btn-stop" onclick="doAct('stop')" title="写 0x2003=1（停止使能）\n闸门保持当前位置，电机停转">
             <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>停止
           </button>
-          <button class="cbig cem" id="btn-emstop" onclick="doAct('emstop')" title="硬件急停，电机立即断电\n急停状态由0x1003回报，需系统复位（0x2004=1）解除">
+          <button class="cbig cem" id="btn-emstop" onclick="toggleEmstop()" title="硬件急停，电机立即断电\n再次点击可撤销急停状态">
             <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><polygon points="12,2 22,20 2,20"/></svg>急停保护
           </button>
           <div class="csep"></div>
@@ -941,11 +942,31 @@ function updateControlButtons(g){
     btnClose.disabled=em||!!g.dwLimit;
     btnClose.title=em?'急停状态下已锁定，请先执行系统复位':(g.dwLimit?'下限位已触发，闸门已到最小开度':'');
   }
-  // 急停时锁定 停止 / 参数设定 / 使能 / 急停本身；仅保留「系统复位」可用
-  ['btn-stop','btn-setparams','btn-enable','btn-emstop'].forEach(id=>{
+  // 急停时锁定 停止 / 参数设定 / 使能；急停按钮改为可撤销，始终可用
+  ['btn-stop','btn-setparams','btn-enable'].forEach(id=>{
     const b=document.getElementById(id);
-    if(b){b.disabled=em;b.title=em?'急停状态下已锁定，请先执行系统复位':'';}
+    if(b){b.disabled=em;b.title=em?'急停状态下已锁定，请先撤销急停或系统复位':'';}
   });
+  // 急停按钮：正常态=「急停保护」(红)，急停态=「撤销急停」(绿)，两态均可点击并二次确认
+  const be=document.getElementById('btn-emstop');
+  if(be){
+    be.disabled=false;
+    if(em){
+      be.classList.add('undo');
+      be.title='撤销急停，解除锁定并恢复待机';
+      be.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>撤销急停';
+    }else{
+      be.classList.remove('undo');
+      be.title='硬件急停，电机立即断电；再次点击可撤销';
+      be.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12,2 22,20 2,20"/></svg>急停保护';
+    }
+  }
+}
+// 急停按钮切换：未急停→触发急停；已急停→撤销急停（均弹窗二次确认）
+function toggleEmstop(){
+  const g=gates.find(x=>x.id===curId);
+  if(!g)return;
+  doAct(g.emStop?'unemstop':'emstop');
 }
 function syncTargetInputs(){
   const sel=document.getElementById('in-target-mode');
@@ -1339,7 +1360,8 @@ const acfg={
   open:{ico:'<circle cx="12" cy="12" r="10"/><polyline points="16 12 12 8 8 12"/><line x1="12" y1="16" x2="12" y2="8"/>',tit:'确认开启操作',dsc:'即将对 <b>%G%</b> 执行 <b style="color:#15803d">开启</b> 操作，闸门将向上移动。请确认控制权限后继续。',okc:'mo',okt:'确认开启'},
   close:{ico:'<circle cx="12" cy="12" r="10"/><polyline points="8 12 12 16 16 12"/><line x1="12" y1="8" x2="12" y2="16"/>',tit:'确认关闭操作',dsc:'即将对 <b>%G%</b> 执行 <b style="color:#dc2626">关闭</b> 操作，闸门将完全下降至底部。',okc:'mc',okt:'确认关闭'},
   stop:{ico:'<circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1"/>',tit:'确认停止操作',dsc:'即将对 <b>%G%</b> 发送 <b>停止</b> 指令，闸门将保持当前位置。',okc:'ms',okt:'确认停止'},
-  emstop:{ico:'<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',tit:'确认急停操作',dsc:'即将对 <b>%G%</b> 触发 <b style="color:#dc2626">急停保护</b>，电机将立即断电，闸门保持当前位置。此操作不可撤销！',okc:'mc',okt:'确认急停'},
+  emstop:{ico:'<polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',tit:'确认急停操作',dsc:'即将对 <b>%G%</b> 触发 <b style="color:#dc2626">急停保护</b>，电机将立即断电、闸门保持当前位置，并锁定其余控制操作。触发后可再次点击「撤销急停」解除。',okc:'mc',okt:'确认急停'},
+  unemstop:{ico:'<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>',tit:'确认撤销急停',dsc:'即将撤销 <b>%G%</b> 的 <b style="color:#15803d">急停保护</b>，设备将解除锁定并恢复待机状态，可重新接受控制指令。请确认现场安全后继续。',okc:'mo',okt:'确认撤销'},
   setParams:{ico:'<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',tit:'设定目标参数',dsc:
     '<div style="text-align:left;font-size:12px;line-height:1.8">'
     +'为 <b>%G%</b> 设定自动控制参数：'
@@ -1374,8 +1396,8 @@ const acfg={
 function doAct(action){
   const g=gates.find(x=>x.id===curId);
   // 急停互锁：除「系统复位」外，急停状态下拒绝一切操作
-  if(g&&g.emStop&&action!=='reset'){
-    showToast('warn','※ 设备处于急停状态，请先执行「系统复位」解除');
+  if(g&&g.emStop&&action!=='reset'&&action!=='unemstop'){
+    showToast('warn','※ 设备处于急停状态，请先「撤销急停」或执行「系统复位」解除');
     return;
   }
   // 上下限位互锁检查
@@ -1460,8 +1482,8 @@ function confirmAct(){
   const g=gates.find(x=>x.id===curId);
   const n=new Date(),p=x=>x.toString().padStart(2,'0');
   const ts=`${p(n.getHours())}:${p(n.getMinutes())}`;
-  const aM={open:'开启',close:'关闭',stop:'停止',emstop:'急停',setParams:'参数设定',enable:'使能生效',reset:'系统复位',factory:'恢复出厂',commConfig:'通信配置'};
-  const tM={open:'to',close:'tc',stop:'ts2',emstop:'tc',setParams:'tp',enable:'to',reset:'ts2',factory:'tc',commConfig:'tp'};
+  const aM={open:'开启',close:'关闭',stop:'停止',emstop:'急停',unemstop:'撤销急停',setParams:'参数设定',enable:'使能生效',reset:'系统复位',factory:'恢复出厂',commConfig:'通信配置'};
+  const tM={open:'to',close:'tc',stop:'ts2',emstop:'tc',unemstop:'to',setParams:'tp',enable:'to',reset:'ts2',factory:'tc',commConfig:'tp'};
 
   if(pending==='open'){
     if(g.upLimit){showToast('warn','※ 上限位已触发，无法执行开启操作');return;}
@@ -1484,6 +1506,7 @@ function confirmAct(){
   }
   if(pending==='stop'){g.status='standby';g.gSt='待机';g.motorDir=0;}
   if(pending==='emstop'){g.emStop=1;g.status='standby';g.gSt='急停';g.motorDir=0;}
+  if(pending==='unemstop'){g.emStop=0;g.devStatus=0;g.gSt='待机';g.status='standby';g.motorDir=0;}
   if(pending==='setParams'){
     const mode=parseInt(document.getElementById('in-target-mode').value)||0;
     g.targetMode=mode;
